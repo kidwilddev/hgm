@@ -1,0 +1,1897 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+
+  <title>HOTFLIX · Premium Content</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+  <style>
+
+    * { box-sizing: border-box; }
+
+    body { background: #f8f9fa; font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0; color: #1a1a1a; }
+
+    
+
+    /* ===== LOADER ===== */
+
+    #loader {
+
+      position: fixed;
+
+      inset: 0;
+
+      z-index: 99999;
+
+      background: #0a0a0a;
+
+      display: flex;
+
+      flex-direction: column;
+
+      align-items: center;
+
+      justify-content: center;
+
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+
+    }
+
+    #loader.hidden {
+
+      opacity: 0;
+
+      visibility: hidden;
+
+      pointer-events: none;
+
+    }
+
+    #loader .logo {
+
+      font-size: 3.5rem;
+
+      font-weight: 900;
+
+      color: white;
+
+      letter-spacing: -1px;
+
+      margin-bottom: 30px;
+
+    }
+
+    #loader .logo span { color: #dc2626; }
+
+    #loader .spinner {
+
+      width: 50px;
+
+      height: 50px;
+
+      border: 4px solid rgba(255,255,255,0.1);
+
+      border-top-color: #dc2626;
+
+      border-radius: 50%;
+
+      animation: spin 0.8s linear infinite;
+
+    }
+
+    #loader .loading-text {
+
+      color: rgba(255,255,255,0.4);
+
+      font-size: 14px;
+
+      margin-top: 20px;
+
+      letter-spacing: 2px;
+
+      font-weight: 300;
+
+    }
+
+    @keyframes spin {
+
+      to { transform: rotate(360deg); }
+
+    }
+
+
+
+    /* ===== GRID ===== */
+
+    #productGrid {
+
+      display: grid !important;
+
+      grid-template-columns: repeat(1, 1fr) !important;
+
+      gap: 1.25rem !important;
+
+      padding: 1rem 0 !important;
+
+      width: 100% !important;
+
+    }
+
+    @media (min-width: 640px) {
+
+      #productGrid {
+
+        grid-template-columns: repeat(2, 1fr) !important;
+
+      }
+
+    }
+
+    @media (min-width: 768px) {
+
+      #productGrid {
+
+        grid-template-columns: repeat(3, 1fr) !important;
+
+      }
+
+    }
+
+    @media (min-width: 1024px) {
+
+      #productGrid {
+
+        grid-template-columns: repeat(4, 1fr) !important;
+
+      }
+
+    }
+
+
+
+    .product-card { 
+
+      transition: all 0.2s ease; 
+
+      border: 1px solid #e5e7eb; 
+
+      background: #ffffff;
+
+      display: flex !important;
+
+      flex-direction: column;
+
+      min-height: 320px;
+
+      width: 100% !important;
+
+      visibility: visible !important;
+
+      opacity: 1 !important;
+
+    }
+
+    .product-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-3px); }
+
+    
+
+    .modal-overlay { background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
+
+    .bottom-sheet { animation: slideUp 0.3s ease; }
+
+    @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    .btn-press:active { transform: scale(0.96); }
+
+    img, video { display: block; max-width: 100%; }
+
+    
+
+    .btn-red {
+
+      background: #dc2626;
+
+      color: white;
+
+      transition: all 0.2s ease;
+
+    }
+
+    .btn-red:hover {
+
+      background: #b91c1c;
+
+      transform: translateY(-1px);
+
+      box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+
+    }
+
+    .btn-red:disabled {
+
+      background: #e5e7eb;
+
+      color: #9ca3af;
+
+      cursor: not-allowed;
+
+      box-shadow: none;
+
+      transform: none;
+
+    }
+
+    
+
+    .video-thumb {
+
+      position: relative;
+
+      cursor: pointer;
+
+      background: #1a1a2e;
+
+      aspect-ratio: 16/9;
+
+      overflow: hidden;
+
+      flex-shrink: 0;
+
+      min-height: 150px;
+
+    }
+
+    .video-thumb img {
+
+      width: 100%;
+
+      height: 100%;
+
+      object-fit: cover;
+
+      background: #2a2a3e;
+
+    }
+
+    .video-thumb .fallback-img {
+
+      display: none;
+
+      width: 100%;
+
+      height: 100%;
+
+      background: linear-gradient(135deg, #1a1a2e, #2d1b3d);
+
+      align-items: center;
+
+      justify-content: center;
+
+      color: #dc2626;
+
+      font-size: 3rem;
+
+      flex-direction: column;
+
+      gap: 8px;
+
+    }
+
+    .video-thumb .fallback-img span {
+
+      font-size: 14px;
+
+      color: #888;
+
+      font-weight: 300;
+
+    }
+
+    .video-thumb img.error {
+
+      display: none !important;
+
+    }
+
+    .video-thumb img.error + .fallback-img {
+
+      display: flex !important;
+
+    }
+
+    
+
+    .video-thumb:hover img { transform: scale(1.03); }
+
+    .video-thumb .play-overlay {
+
+      position: absolute;
+
+      inset: 0;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      background: rgba(0,0,0,0.25);
+
+      transition: background 0.2s;
+
+      z-index: 3;
+
+    }
+
+    .video-thumb:hover .play-overlay { background: rgba(0,0,0,0.35); }
+
+    .video-thumb .play-overlay .play-btn {
+
+      width: 64px;
+
+      height: 64px;
+
+      border-radius: 50%;
+
+      background: rgba(255,255,255,0.92);
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      color: #dc2626;
+
+      font-size: 1.8rem;
+
+      transition: all 0.25s ease;
+
+      box-shadow: 0 4px 30px rgba(0,0,0,0.4);
+
+      border: 2px solid rgba(255,255,255,0.3);
+
+    }
+
+    .video-thumb .play-overlay .play-btn:hover {
+
+      transform: scale(1.1);
+
+      background: #ffffff;
+
+      box-shadow: 0 4px 40px rgba(220, 38, 38, 0.3);
+
+    }
+
+
+
+    /* ===== CARDS APENAS IMAGEM (SEM PLAY) ===== */
+
+    .image-only .video-thumb {
+
+      cursor: default;
+
+    }
+
+    .image-only .video-thumb .play-overlay {
+
+      display: none !important;
+
+    }
+
+    .image-only .video-thumb:hover img {
+
+      transform: none !important;
+
+    }
+
+    .image-only .video-thumb .image-badge {
+
+      position: absolute;
+
+      bottom: 10px;
+
+      left: 10px;
+
+      background: rgba(220, 38, 38, 0.92);
+
+      color: white;
+
+      font-size: 11px;
+
+      padding: 4px 12px;
+
+      border-radius: 14px;
+
+      font-weight: 600;
+
+      backdrop-filter: blur(4px);
+
+      z-index: 4;
+
+      border: 1px solid rgba(255,255,255,0.15);
+
+    }
+
+    .image-only .video-thumb .image-icon {
+
+      position: absolute;
+
+      top: 10px;
+
+      right: 10px;
+
+      background: rgba(0,0,0,0.6);
+
+      color: white;
+
+      font-size: 14px;
+
+      padding: 6px 10px;
+
+      border-radius: 10px;
+
+      backdrop-filter: blur(4px);
+
+      z-index: 4;
+
+      border: 1px solid rgba(255,255,255,0.1);
+
+    }
+
+    .image-only .video-thumb .video-count {
+
+      display: none !important;
+
+    }
+
+    .image-only .video-thumb .video-badge {
+
+      display: none !important;
+
+    }
+
+
+
+    .video-thumb .video-badge {
+
+      position: absolute;
+
+      bottom: 10px;
+
+      left: 10px;
+
+      background: rgba(0,0,0,0.75);
+
+      color: white;
+
+      font-size: 11px;
+
+      padding: 4px 12px;
+
+      border-radius: 14px;
+
+      font-weight: 600;
+
+      letter-spacing: 0.3px;
+
+      backdrop-filter: blur(4px);
+
+      border: 1px solid rgba(255,255,255,0.1);
+
+      z-index: 4;
+
+    }
+
+    .video-thumb .video-count {
+
+      position: absolute;
+
+      top: 10px;
+
+      right: 10px;
+
+      background: rgba(220, 38, 38, 0.92);
+
+      color: white;
+
+      font-size: 11px;
+
+      padding: 4px 12px;
+
+      border-radius: 14px;
+
+      font-weight: 600;
+
+      backdrop-filter: blur(4px);
+
+      z-index: 4;
+
+    }
+
+    .product-card .p-4 {
+
+      flex: 1;
+
+      display: flex;
+
+      flex-direction: column;
+
+      padding: 1rem;
+
+    }
+
+    .product-card .p-4 .buy-btn {
+
+      margin-top: auto;
+
+    }
+
+    
+
+    .preview-modal .video-container {
+
+      display: grid;
+
+      grid-template-columns: 1fr 1fr;
+
+      gap: 14px;
+
+      padding: 20px;
+
+      background: #0a0a0a;
+
+    }
+
+    .preview-modal .video-container video {
+
+      width: 100%;
+
+      border-radius: 10px;
+
+      background: #000;
+
+      border: 1px solid rgba(255,255,255,0.06);
+
+      aspect-ratio: 16/9;
+
+      object-fit: contain;
+
+    }
+
+    @media (max-width: 640px) {
+
+      .preview-modal .video-container {
+
+        grid-template-columns: 1fr;
+
+        gap: 10px;
+
+        padding: 12px;
+
+      }
+
+    }
+
+    .hotflix-red { color: #dc2626; }
+
+    
+
+    .header-logo {
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      width: 100%;
+
+    }
+
+    @media (min-width: 641px) {
+
+      .header-logo {
+
+        justify-content: flex-start;
+
+        width: auto;
+
+      }
+
+    }
+
+    .header-icons {
+
+      display: flex;
+
+      gap: 1.25rem;
+
+      color: #6b7280;
+
+    }
+
+    @media (max-width: 640px) {
+
+      .header-icons {
+
+        display: none;
+
+      }
+
+    }
+
+    .menu-mobile {
+
+      display: none;
+
+    }
+
+    @media (max-width: 640px) {
+
+      .menu-mobile {
+
+        display: block;
+
+        color: #6b7280;
+
+        font-size: 1.5rem;
+
+        position: absolute;
+
+        right: 1rem;
+
+        top: 50%;
+
+        transform: translateY(-50%);
+
+      }
+
+    }
+
+    .header-wrapper {
+
+      position: relative;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      padding: 0.75rem 0;
+
+      border-bottom: 1px solid #e5e7eb;
+
+      background: white;
+
+    }
+
+    @media (min-width: 641px) {
+
+      .header-wrapper {
+
+        justify-content: space-between;
+
+      }
+
+    }
+
+
+
+    /* Ícones dos métodos de pagamento */
+
+    .icon-credit { color: #1a73e8; }
+
+    .icon-paypal { color: #003087; }
+
+    .icon-pix { color: #32b84e; }
+
+    .icon-binance { color: #f3ba2f; }
+
+    .icon-crypto { color: #f7931a; }
+
+    .icon-gift { color: #e91e63; }
+
+
+
+    /* ===== BOLHA DE CONFIRMAÇÃO ===== */
+
+    .sales-bubble {
+
+      position: fixed;
+
+      bottom: 20px;
+
+      left: 20px;
+
+      background: rgba(220, 38, 38, 0.95);
+
+      color: white;
+
+      padding: 14px 22px;
+
+      border-radius: 12px;
+
+      font-size: 14px;
+
+      font-weight: 500;
+
+      box-shadow: 0 8px 35px rgba(220, 38, 38, 0.4);
+
+      z-index: 9999;
+
+      display: flex;
+
+      align-items: center;
+
+      gap: 12px;
+
+      backdrop-filter: blur(8px);
+
+      border: 1px solid rgba(255,255,255,0.15);
+
+      max-width: 380px;
+
+      min-width: 250px;
+
+      pointer-events: none;
+
+      animation: slideInLeft 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+
+      transform: translateX(-120%);
+
+    }
+
+    .sales-bubble .icon {
+
+      font-size: 18px;
+
+      color: #fcd34d;
+
+      flex-shrink: 0;
+
+    }
+
+    .sales-bubble .name {
+
+      color: #fcd34d;
+
+      font-weight: 700;
+
+    }
+
+    .sales-bubble .product {
+
+      color: #ffffff;
+
+      font-weight: 600;
+
+    }
+
+    .sales-bubble .time {
+
+      font-size: 11px;
+
+      color: rgba(255,255,255,0.7);
+
+      margin-left: auto;
+
+      flex-shrink: 0;
+
+    }
+
+
+
+    @keyframes slideInLeft {
+
+      0% { transform: translateX(-120%) scale(0.9); opacity: 0; }
+
+      100% { transform: translateX(0) scale(1); opacity: 1; }
+
+    }
+
+    .sales-bubble.hiding {
+
+      animation: slideOutLeft 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+
+    }
+
+    @keyframes slideOutLeft {
+
+      0% { transform: translateX(0) scale(1); opacity: 1; }
+
+      100% { transform: translateX(-120%) scale(0.9); opacity: 0; }
+
+    }
+
+    .bubble-container {
+
+      position: fixed;
+
+      bottom: 0;
+
+      left: 0;
+
+      pointer-events: none;
+
+      z-index: 9998;
+
+    }
+
+
+
+    @media (max-width: 640px) {
+
+      .sales-bubble {
+
+        left: 10px;
+
+        bottom: 10px;
+
+        padding: 12px 16px;
+
+        font-size: 13px;
+
+        max-width: 300px;
+
+        min-width: 200px;
+
+        border-radius: 10px;
+
+      }
+
+      .sales-bubble .icon { font-size: 15px; }
+
+      .sales-bubble .time { font-size: 10px; }
+
+      #loader .logo { font-size: 2.5rem; }
+
+    }
+
+
+
+    @keyframes fadeIn {
+
+      from { opacity: 0; }
+
+      to { opacity: 1; }
+
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+
+
+<!-- ===== LOADER ===== -->
+
+<div id="loader">
+
+  <div class="logo">HOT<span>FLIX</span></div>
+
+  <div class="spinner"></div>
+
+  <div class="loading-text">LOADING...</div>
+
+</div>
+
+
+
+<!-- ===== BOLHAS ===== -->
+
+<div id="bubbleContainer" class="bubble-container"></div>
+
+
+
+<!-- ===== CONTEÚDO PRINCIPAL ===== -->
+
+<div id="mainContent" style="display: none;">
+
+
+
+<div id="app" class="max-w-6xl mx-auto px-4 py-4">
+
+
+
+  <!-- ===== HEADER ===== -->
+
+  <header class="sticky top-0 bg-white z-50">
+
+    <div class="header-wrapper">
+
+      <div class="header-logo">
+
+        <span class="text-2xl font-bold text-gray-900">HOT<span class="hotflix-red">FLIX</span></span>
+
+      </div>
+
+      <div class="header-icons">
+
+        <i class="fas fa-search text-lg"></i>
+
+        <i class="fas fa-shopping-cart text-lg"></i>
+
+        <i class="fas fa-bars text-xl"></i>
+
+      </div>
+
+      <div class="menu-mobile">
+
+        <i class="fas fa-bars"></i>
+
+      </div>
+
+    </div>
+
+  </header>
+
+
+
+  <!-- ===== HERO ===== -->
+
+  <section class="py-8 text-center">
+
+    <h1 class="text-3xl font-bold text-gray-900">Premium Content</h1>
+
+  </section>
+
+
+
+  <!-- ===== PRODUCT GRID ===== -->
+
+  <div id="productGrid"></div>
+
+
+
+  <!-- ===== FINAL CARD ===== -->
+
+  <div class="mt-6 bg-gray-50 rounded-2xl p-8 text-center border border-gray-200">
+
+    <i class="fas fa-gem text-3xl text-red-500 mb-3"></i>
+
+    <h3 class="text-xl font-bold text-gray-800">HOTFLIX Premium</h3>
+
+    <p class="text-gray-500 text-sm max-w-sm mx-auto mt-1">Get access to our latest premium digital content and exclusive packs.</p>
+
+    <button class="mt-4 btn-red px-6 py-2.5 rounded-full text-sm font-medium btn-press">
+
+      <i class="fas fa-shopping-bag mr-2"></i>View All
+
+    </button>
+
+  </div>
+
+
+
+  <!-- ===== FOOTER ===== -->
+
+  <footer class="mt-10 pt-6 border-t border-gray-200 text-gray-500 text-sm flex flex-wrap justify-between items-center">
+
+    <span>© 2026 HOTFLIX. All rights reserved.</span>
+
+    <div class="flex gap-4">
+
+      <a href="#" class="hover:text-gray-800">Terms</a>
+
+      <a href="#" class="hover:text-gray-800">Privacy</a>
+
+      <a href="#" class="hover:text-gray-800">Support</a>
+
+    </div>
+
+  </footer>
+
+</div>
+
+
+
+</div><!-- end mainContent -->
+
+
+
+<!-- ===== PREVIEW MODAL ===== -->
+
+<div id="previewModal" class="fixed inset-0 z-50 modal-overlay hidden flex items-center justify-center p-4 preview-modal">
+
+  <div class="bg-white rounded-2xl max-w-4xl w-full overflow-hidden shadow-2xl">
+
+    <div class="flex justify-between items-center p-4 border-b border-gray-100">
+
+      <span class="font-semibold text-gray-800 text-lg" id="modalTitle">Preview</span>
+
+      <button id="closePreviewModal" class="text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
+
+    </div>
+
+    <div class="video-container" id="videoContainer">
+
+      <video id="video1" controls preload="metadata">
+
+        <source src="" type="video/mp4" />
+
+
+      </video>
+
+      <video id="video2" controls preload="metadata">
+
+        <source src="" type="video/mp4" />
+
+
+      </video>
+
+    </div>
+
+    <div class="p-4 flex flex-wrap justify-between items-center border-t border-gray-100 gap-3">
+
+      <div>
+
+        <span class="text-gray-700 font-bold text-lg" id="modalPrice">$0.00</span>
+
+        <span class="text-gray-400 text-sm ml-3" id="modalViews">0 views</span>
+
+      </div>
+
+      <button class="btn-red px-6 py-2.5 rounded-full text-sm font-medium btn-press" id="modalBuyBtn">
+
+        <i class="fas fa-shopping-bag mr-2"></i>BUY ALL PACK
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- ===== CHECKOUT ===== -->
+
+<div id="checkoutModal" class="fixed inset-0 z-50 bg-black/40 hidden flex items-end justify-center">
+
+  <div class="bg-white rounded-t-3xl w-full max-w-md p-6 bottom-sheet">
+
+    <div class="flex justify-between items-center mb-4">
+
+      <h3 class="text-lg font-bold text-gray-900">Secure Checkout</h3>
+
+      <button id="closeCheckout" class="text-gray-400 text-2xl">&times;</button>
+
+    </div>
+
+    
+
+    <div class="bg-gray-50 p-4 rounded-xl flex justify-between">
+
+      <span class="text-gray-600">Product</span>
+
+      <span class="font-medium" id="checkoutProduct">Product Name</span>
+
+    </div>
+
+    <div class="bg-gray-50 p-4 rounded-xl mt-2 flex justify-between">
+
+      <span class="text-gray-600">Price</span>
+
+      <span class="font-bold text-red-600" id="checkoutPrice">$0.00</span>
+
+    </div>
+
+
+
+    <p class="text-sm text-gray-500 mt-4 font-medium">Select Payment Method</p>
+
+    <div id="paymentList" class="space-y-2 mt-2"></div>
+
+
+
+    <button id="checkoutBtn" class="w-full mt-4 bg-gray-300 text-gray-500 py-3.5 rounded-xl font-medium cursor-not-allowed transition" disabled>
+
+      <i class="fas fa-lock mr-2"></i>SELECT A PAYMENT METHOD
+
+    </button>
+
+    
+
+    <p class="text-center text-xs text-gray-400 mt-3">
+
+      <i class="fas fa-shield-alt mr-1"></i> Secure · Encrypted
+
+    </p>
+
+  </div>
+
+</div>
+
+
+
+<script>
+
+  (function() {
+
+    // ===== OCULTAR LOADER =====
+
+    function hideLoader() {
+
+      const loader = document.getElementById('loader');
+
+      const mainContent = document.getElementById('mainContent');
+
+      
+
+      if (loader) {
+
+        loader.classList.add('hidden');
+
+        setTimeout(() => {
+
+          if (loader.parentNode) {
+
+            loader.style.display = 'none';
+
+          }
+
+        }, 700);
+
+      }
+
+      
+
+      if (mainContent) {
+
+        mainContent.style.display = 'block';
+
+        mainContent.style.animation = 'fadeIn 0.5s ease';
+
+      }
+
+    }
+
+
+
+    // ============================================
+
+    // ===== 80 NOMES =====
+
+    const NOMES = [
+
+      "Ana Silva", "Bruno Costa", "Carla Mendes", "Daniel Oliveira", "Elena Santos",
+
+      "Felipe Rodrigues", "Gabriela Lima", "Henrique Souza", "Isabela Ferreira", "João Pereira",
+
+      "Karina Alves", "Leonardo Gomes", "Mariana Rocha", "Nicolas Teixeira", "Olivia Martins",
+
+      "Pedro Cardoso", "Quitéria Nunes", "Rafael Barbosa", "Sabrina Castro", "Thiago Lopes",
+
+      "Ursula Andrade", "Vitor Hugo", "Wagner Silva", "Ximena Reyes", "Yuri Costa",
+
+      "Zara Oliveira", "Alice Moreira", "Bernardo Pires", "Camila Dias", "Diego Machado",
+
+      "Eduarda Campos", "Fernando Ribeiro", "Gabriel Almeida", "Helena Nogueira", "Igor Batista",
+
+      "Júlia Mendonça", "Kauã Azevedo", "Larissa Farias", "Marcelo Correia", "Natália Borges",
+
+      "Otávio Barros", "Patrícia Melo", "Renato Duarte", "Sofia Ribeiro", "Tomás Carvalho",
+
+      "Valentina Vargas", "William Monteiro", "Xavier Lins", "Yasmin Tavares", "Zacarias Neves",
+
+      "André Ramos", "Bianca Fontes", "Caio Pacheco", "Diana Rezende", "Erick Nascimento",
+
+      "Fabiana Pimenta", "Gustavo Cunha", "Heloísa Bastos", "Ivan Sampaio", "Jéssica Rangel",
+
+      "Kevin Cardoso", "Letícia Moura", "Mateus Araújo", "Nádia Correia", "Osvaldo Leal",
+
+      "Paula Miranda", "Rômulo Coelho", "Sandra Valente", "Tainá Guedes", "Ubirajara Melo",
+
+      "Vanessa Prado", "William Torres", "Xênia Rocha", "Yago Nunes", "Zilda Cabral",
+
+      "Antônio Sales", "Beatriz Marinho", "Cristiano Brito", "Débora Assunção", "Elias Viana"
+
+    ];
+
+
+
+    const PRODUCT_NAMES = [
+
+      "Cyber Pack", "Nature Collection", "City Lights", "Premium Bundle", 
+
+      "Travel Adventures", "Luxury Pack", "Sports Edition", "Night Vision",
+
+      "Music Visuals", "Digital Art", "Action Bundle", "Photo Collection",
+
+      "Cinematic Pack", "Neon Nights", "Cyber Pack Vol.2", "Ultimate Pack",
+
+      "Pro Creator", "Master Bundle", "Elite Collection", "Vintage Pack"
+
+    ];
+
+
+
+    function getRandomName() {
+
+      return NOMES[Math.floor(Math.random() * NOMES.length)];
+
+    }
+
+    function getRandomProduct() {
+
+      return PRODUCT_NAMES[Math.floor(Math.random() * PRODUCT_NAMES.length)];
+
+    }
+
+    function getCurrentTime() {
+
+      const now = new Date();
+
+      return now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+    }
+
+
+
+    // ===== BOLHA =====
+
+    function createSalesBubble() {
+
+      const container = document.getElementById('bubbleContainer');
+
+      if (!container) return;
+
+
+
+      const existing = container.querySelector('.sales-bubble');
+
+      if (existing) {
+
+        existing.classList.add('hiding');
+
+        setTimeout(() => {
+
+          if (existing.parentNode) existing.remove();
+
+        }, 500);
+
+      }
+
+
+
+      setTimeout(() => {
+
+        const bubble = document.createElement('div');
+
+        bubble.className = 'sales-bubble';
+
+        const nome = getRandomName();
+
+        const product = getRandomProduct();
+
+        const time = getCurrentTime();
+
+        bubble.innerHTML = `
+
+          <span class="icon"><i class="fas fa-shopping-bag"></i></span>
+
+          <span><span class="name">${nome}</span> bought <span class="product">${product}</span> 🔥</span>
+
+          <span class="time">${time}</span>
+
+        `;
+
+        container.appendChild(bubble);
+
+        setTimeout(() => {
+
+          if (bubble.parentNode) {
+
+            bubble.classList.add('hiding');
+
+            setTimeout(() => {
+
+              if (bubble.parentNode) bubble.remove();
+
+            }, 500);
+
+          }
+
+        }, 8000);
+
+      }, 100);
+
+    }
+
+
+
+    function startBubbles() {
+
+      setTimeout(() => { createSalesBubble(); }, 3000);
+
+      setInterval(() => { createSalesBubble(); }, 50000);
+
+    }
+
+
+
+    // ============================================
+
+    // ===== CONFIG TELEGRAM =====
+
+    const TELEGRAM_USERNAME = 'allprnhere';
+
+    const TELEGRAM_URL = `https://telegram.me/${TELEGRAM_USERNAME}`;
+
+
+
+    function generateOrderId() {
+
+      return '#HF-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+
+    }
+
+
+
+    // ============================================
+
+    // ===== 14 PRODUTOS (3 APENAS IMAGEM) =====
+
+    // ============================================
+
+    const productsData = [
+
+      // IDS 1, 2, 3 - IMAGEM COM VÍDEO
+
+      { id: 1, title: "ALL CP & MINORS", price: 75, image: "https://www.image2url.com/r2/default/images/1791665515472-aee1ee8d-89c0-41ff-b121-a76cf0d93c14.jpeg", video1: "https://files.catbox.moe/eixrzw.mp4", video2: "https://www.image2url.com/r2/default/videos/1789047861572-cb851081-4076-44aa-ae5d-606a7cf1f4fc.mp4", views: 450, sales: 120, isImage: true },
+
+      { id: 2, title: "ALL TEENS", price: 75, image: "https://www.image2url.com/r2/default/images/1791665227741-2d354fe1-522d-454d-bc8a-bf575dddaa6d.jpeg", video1: "https://www.image2url.com/r2/default/videos/1789047238695-2a63a92e-4e86-4d74-9960-4a2166a35f3a.mp4", video2: "https://www.image2url.com/r2/default/videos/1789058690095-33910ac6-7e06-48ee-baac-ac8092fe8061.mp4", views: 320, sales: 85, isImage: true },
+
+      { id: 3, title: "ALL CONTENT AND VIP CHANNEL", price: 97 , image: "https://www.image2url.com/r2/default/images/1791739911241-b0d80fce-c00e-41bf-85c3-6fb611a82e9f.png", video1: "https://www.image2url.com/r2/default/videos/1789124862677-6c81cec4-72a8-4887-808c-44e6fc577661.mp4", video2: "https://files.catbox.moe/n8s32m.mp4", views: 890, sales: 210, isImage: true },
+
+      // IDS 4-14 - COM VÍDEO
+
+      { id: 4, title: "FULL CP 1-4", price: 45, image: "https://www.image2url.com/r2/default/images/1791665353786-4f778f37-5bb2-4726-844e-57923ba4ec55.jpg", video1: "https://www.image2url.com/r2/default/videos/1789047811549-1310373a-e817-442f-9e3f-85a0df19b96c.mp4", video2: "https://www.image2url.com/r2/default/videos/1789047617809-2f8eecab-e318-4f72-8193-bc8835d6cb53.mp4", views: 157, sales: 89, isImage: false },
+
+      { id: 5,title: "FULL CP 4-11", price: 45, image: "https://www.image2url.com/r2/default/images/1791665464116-5f432686-2179-4442-855b-f421e9d4e0ff.jpeg", video1: "https://www.image2url.com/r2/default/videos/1789046865664-cc6553f0-3002-4de4-940d-8c525f8dd9da.mp4", video2: "https://www.image2url.com/r2/default/videos/1789046935831-aa5d9172-6766-4ca2-aedf-b935bb457b9f.mp4", views: 198, sales: 45, isImage: false },
+
+      { id: 6, title: "BLACK CP & BABEs", price: 45, image: "https://www.image2url.com/r2/default/images/1791666346592-24820c20-4993-45af-8017-16fd87d33308.jpg", video1: "https://www.image2url.com/r2/default/videos/1789058690095-33910ac6-7e06-48ee-baac-ac8092fe8061.mp4", video2: "https://www.image2url.com/r2/default/videos/1789047811549-1310373a-e817-442f-9e3f-85a0df19b96c.mp4", views: 340, sales: 120, isImage: false },
+
+      { id: 7, title: "MOM AND SON", price: 40, image: "https://www.image2url.com/r2/default/images/1791665137537-149822b8-9a78-4038-9c8a-5d0354d84d7a.jpeg", video1: "https://www.image2url.com/r2/default/videos/1789057643245-984a8561-c3a3-42d0-a2b9-a7e7d023d951.mp4", video2: "https://www.image2url.com/r2/default/videos/1789051833221-bf6090c9-14e5-449b-8f4e-15dc4b61817e.mp4", views: 267, sales: 33, isImage: false },
+
+      { id: 8, title: "MINORS & TEENS", price: 45, image: "https://www.image2url.com/r2/default/images/1791665859100-dbba22f8-3b7e-401c-a840-642d895f7ed4.jpeg", video1: "https://www.image2url.com/r2/default/videos/1789124862677-6c81cec4-72a8-4887-808c-44e6fc577661.mp4", video2: "https://files.catbox.moe/d6iaq1.mp4", views: 450, sales: 76, isImage: false },
+
+      { id: 9,title: "INCEST", price: 35, image: "https://www.image2url.com/r2/default/images/1791665263915-71b98a21-d1af-491b-b190-64e7b7fe74e2.jpg", video1: "https://files.catbox.moe/eixrzw.mp4", video2: "https://www.image2url.com/r2/default/videos/1789056387399-eab734d8-1124-4251-8831-17008c89ae22.mp4", views: 390, sales: 90, isImage: false },
+
+      { id: 10,  title: " HIGH SCHOOL", price: 35, image: "https://www.image2url.com/r2/default/images/1791739545228-aa49a6a9-8de7-42d6-b555-073d292349bb.jpeg", video1: "https://files.catbox.moe/405t3c.mp4", video2: "https://www.image2url.com/r2/default/videos/1789047960326-770f454d-bf46-48c5-9d6a-04c6f65b5df9.mp4", views: 210, sales: 45, isImage: false },
+
+      { id: 11,title: "TEEN 8-17Y", price: 35, image: "https://www.image2url.com/r2/default/images/1791665407669-9905648f-c8e3-41a3-a1af-392401e2fa20.png", video1: "https://www.image2url.com/r2/default/videos/1789046865664-cc6553f0-3002-4de4-940d-8c525f8dd9da.mp4", video2: "https://www.image2url.com/r2/default/videos/1789047081339-d8dd65ad-fb7d-41ea-813a-162116576244.mp4", views: 880, sales: 38 , isImage: false },
+
+      { id: 12,  title: "RAPE ", price: 40, image: "https://www.image2url.com/r2/default/images/1791739818197-a33f4bc9-4abe-4e7c-ba4d-661b4a65a2b5.jpeg", video1: "https://www.image2url.com/r2/default/videos/1789051027214-1b899adc-240e-45ee-99e6-bb54644b987c.mp4", video2: "https://www.image2url.com/r2/default/videos/1789050972211-0d30dadc-6cc1-496b-9ce8-aae7781b96a1.mp4", views: 930, sales: 38 , isImage: false },
+
+      { id: 13, title: "INCEST", price: 45, image: "https://www.image2url.com/r2/default/images/1791666431171-2236c792-8357-40e7-8700-aa1e418d0c39.jpeg", video1: "https://www.image2url.com/r2/default/videos/1789047153283-cd98a297-1bf1-409f-9aaf-bf5a7b27641b.mp4", video2: "https://files.catbox.moe/aibvkg.mp4", views: 490, sales: 99, isImage: false },
+
+      { id: 14, title: "FATHER & DAUGTHER ", price: 40, image: "https://www.image2url.com/r2/default/images/1791665309125-09eaa1a8-5ece-453f-8066-97218fd86a86.jpg", video1: "https://www.image2url.com/r2/default/videos/1789047751282-a30ea955-9f10-47eb-aea3-92610c935d96.mp4", video2: "https://www.image2url.com/r2/default/videos/1789047617809-2f8eecab-e318-4f72-8193-bc8835d6cb53.mp4", views: 720, sales: 44, isImage: false },
+
+      { id: 15, title: "COMBO GAY+INCEST", price: 40, image: "https://www.image2url.com/r2/default/images/1791665654481-985067e6-5861-4363-ad74-c5f5d3677e9f.webp", video1: "https://www.image2url.com/r2/default/videos/1789129100387-efe89e4e-01af-463b-b64c-9fd2a99ffcf0.mp4", video2: "https://www.image2url.com/r2/default/videos/1789051833221-bf6090c9-14e5-449b-8f4e-15dc4b61817e.mp4", views: 720, sales: 44, isImage: false },
+
+      { id: 16, title: "TEENS BLOWJOB & FEETS", price: 35, image: "https://www.image2url.com/r2/default/images/1791666274573-685e0c75-3507-40c1-b19f-61d45d87c2ce.jpeg", video1: "https://www.image2url.com/r2/default/videos/1789052102166-79ff8ae4-0b8a-4274-9c26-2086851ce098.mp4", video2: "https://www.image2url.com/r2/default/videos/1789056498756-9bd522c5-6d44-4c27-8f1f-0bc3d84055db.mp4", views: 720, sales: 44, isImage: false },
+
+      { id: 17, title: "ANXIOUS PANDA", price: 40, image: "https://www.image2url.com/r2/default/images/1791666219997-3f024fcc-070f-4459-a5bf-a79334cbc904.jpeg", video1: "https://www.image2url.com/r2/default/videos/1789130544022-9f870d70-d06f-4bea-99a2-52090485d990.mp4", video2: "https://files.catbox.moe/bx074v.mp4", views: 720, sales: 44, isImage: false },
+
+      { id: 18, title: "CP GAY", price: 35, image: "https://www.image2url.com/r2/default/images/1791666058623-0febe854-e586-4fce-a03b-78d1a1ac095c.jpeg", video1: "https://www.image2url.com/r2/default/videos/1789128464411-3a2e52d7-3ff4-47a1-9e3c-fbca0a2564ef.mp4", video2: "https://www.image2url.com/r2/default/videos/1789129211458-07d53033-a08e-4cc3-809e-2cd4c77570b6.mp4", views: 720, sales: 44, isImage: false },
+
+    ];
+
+
+    // ===== EMBARALHAR =====
+
+    function shuffleArray(array) {
+
+      const shuffled = [...array];
+
+      for (let i = shuffled.length - 1; i > 0; i--) {
+
+        const j = Math.floor(Math.random() * (i + 1));
+
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+
+      }
+
+      return shuffled;
+
+    }
+
+
+
+    let products = shuffleArray(productsData);
+
+
+
+    // ===== RENDER =====
+
+    const grid = document.getElementById('productGrid');
+
+    const FALLBACK_IMAGE = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"%3E%3Crect width="400" height="300" fill="%231a1a2e"/%3E%3Ctext x="200" y="150" font-family="Arial" font-size="24" fill="%23666" text-anchor="middle" dominant-baseline="middle"%3E📷 Image%3C/text%3E%3C/svg%3E';
+
+    
+
+    function renderProducts() {
+
+      grid.innerHTML = '';
+
+      
+
+      products.forEach((p) => {
+
+        const card = document.createElement('div');
+
+        const isImageOnly = p.isImage === true;
+
+        card.className = 'product-card rounded-xl overflow-hidden' + (isImageOnly ? ' image-only' : '');
+
+        card.style.opacity = '1';
+
+        card.style.visibility = 'visible';
+
+        card.style.display = 'flex !important';
+
+        
+
+        // Conteúdo do card
+
+        let thumbContent = `
+
+          <div class="video-thumb" data-id="${p.id}" data-isimage="${isImageOnly}">
+
+            <img src="${p.image}" alt="${p.title}" loading="lazy" onerror="this.classList.add('error'); this.src='${FALLBACK_IMAGE}';" />
+
+            <div class="fallback-img">
+
+              <i class="fas ${isImageOnly ? 'fa-image' : 'fa-video'}"></i>
+
+              <span>${p.title}</span>
+
+            </div>
+
+        `;
+
+        
+
+        if (isImageOnly) {
+
+          // Card apenas imagem - sem play overlay
+
+          thumbContent += `
+
+            <div class="image-badge"><i class="fas fa-image mr-1"></i>IMAGE</div>
+
+            <div class="image-icon"><i class="fas fa-image"></i></div>
+
+          `;
+
+        } else {
+
+          // Card com vídeo - com play overlay
+
+          thumbContent += `
+
+            <div class="play-overlay">
+
+              <div class="play-btn"><i class="fas fa-play"></i></div>
+
+            </div>
+
+            <span class="video-badge"><i class="fas fa-video mr-1"></i>2 previews</span>
+
+            <span class="video-count"><i class="far fa-eye mr-1"></i>${p.views}</span>
+
+          `;
+
+        }
+
+        
+
+        thumbContent += `</div>`;
+
+        
+
+        // Parte inferior do card
+
+        card.innerHTML = thumbContent + `
+
+          <div class="p-4">
+
+            <h4 class="font-semibold text-gray-800 text-lg">${p.title}</h4>
+
+            <p class="text-red-600 font-bold text-lg">$${p.price.toFixed(2)}</p>
+
+            <div class="flex gap-4 text-xs text-gray-400 mt-1">
+
+              <span><i class="far fa-eye"></i> ${p.views} Views</span>
+
+              <span><i class="fas fa-shopping-bag"></i> ${p.sales} Sales</span>
+
+            </div>
+
+            <button class="mt-3 w-full btn-red py-2.5 rounded-xl text-sm font-medium btn-press buy-btn" data-id="${p.id}">
+
+              <i class="fas fa-shopping-bag mr-1"></i> BUY ALL PACK
+
+            </button>
+
+          </div>
+
+        `;
+
+        grid.appendChild(card);
+
+      });
+
+      
+
+      console.log(`✅ ${products.length} cards renderizados (${products.filter(p => p.isImage).length} apenas imagem)`);
+
+    }
+
+    renderProducts();
+
+
+    // ============================================
+
+    // ===== INICIAR BOLHAS E OCULTAR LOADER =====
+
+    startBubbles();
+
+    setTimeout(() => { hideLoader(); }, 1500);
+
+
+
+    // ============================================
+
+    // ===== PREVIEW MODAL (APENAS PARA VÍDEOS) =====
+
+    const previewModal = document.getElementById('previewModal');
+
+    const closePreview = document.getElementById('closePreviewModal');
+
+    const modalTitle = document.getElementById('modalTitle');
+
+    const modalPrice = document.getElementById('modalPrice');
+
+    const modalViews = document.getElementById('modalViews');
+
+    const modalBuyBtn = document.getElementById('modalBuyBtn');
+
+    const video1 = document.getElementById('video1');
+
+    const video2 = document.getElementById('video2');
+
+    let currentProduct = null;
+
+
+
+    document.addEventListener('click', (e) => {
+
+      const thumb = e.target.closest('.video-thumb');
+
+      if (!thumb) return;
+
+      
+
+      const isImageOnly = thumb.dataset.isimage === 'true';
+
+      if (isImageOnly) {
+
+        // Cards apenas imagem não abrem modal de vídeo
+
+        return;
+
+      }
+
+      
+
+      const id = parseInt(thumb.dataset.id);
+
+      currentProduct = products.find(p => p.id === id);
+
+      if (currentProduct) {
+
+        modalTitle.textContent = currentProduct.title;
+
+        modalPrice.textContent = `$${currentProduct.price.toFixed(2)}`;
+
+        modalViews.textContent = `${currentProduct.views} views`;
+
+        
+
+        video1.querySelector('source').src = currentProduct.video1 || '';
+
+        video2.querySelector('source').src = currentProduct.video2 || '';
+
+        video1.load();
+
+        video2.load();
+
+        
+
+        previewModal.classList.remove('hidden');
+
+        previewModal.classList.add('flex');
+
+      }
+
+    });
+
+
+
+    function closePreviewModal() {
+
+      previewModal.classList.add('hidden');
+
+      previewModal.classList.remove('flex');
+
+      video1.pause();
+
+      video2.pause();
+
+    }
+
+
+
+    closePreview.addEventListener('click', closePreviewModal);
+
+    previewModal.addEventListener('click', (e) => {
+
+      if (e.target === previewModal) closePreviewModal();
+
+    });
+
+
+
+    modalBuyBtn.addEventListener('click', () => {
+
+      if (currentProduct) {
+
+        openCheckout(currentProduct);
+
+        closePreviewModal();
+
+      }
+
+    });
+
+
+
+    // ============================================
+
+    // ===== CHECKOUT =====
+
+    const checkoutModal = document.getElementById('checkoutModal');
+
+    const closeCheckout = document.getElementById('closeCheckout');
+
+    const checkoutProduct = document.getElementById('checkoutProduct');
+
+    const checkoutPrice = document.getElementById('checkoutPrice');
+
+    const checkoutBtn = document.getElementById('checkoutBtn');
+
+    const paymentList = document.getElementById('paymentList');
+
+
+
+    const paymentMethods = [
+
+      { name: 'Credit Card', icon: 'fa-credit-card', iconClass: 'icon-credit', label: 'Credit / Debit Card' },
+
+      { name: 'PayPal', icon: 'fa-paypal', iconClass: 'icon-paypal', label: 'PayPal' },
+
+      { name: 'Cashapp', icon: 'fa-bolt', iconClass: 'icon-Cashapp', label: 'Cashapp' },
+
+      { name: 'Apple pay / Google pay', icon: 'fa-coins', iconClass: 'icon-binance', label: 'Apple pay / Google pay' },
+
+      { name: 'Crypto', icon: 'fa-bitcoin', iconClass: 'icon-crypto', label: 'Crypto (BTC/ETH)' },
+
+      { name: 'Gift Card', icon: 'fa-gift', iconClass: 'icon-gift', label: 'Gift Card' },
+
+    ];
+
+
+
+    let selectedPayment = null;
+
+
+
+    function renderPayments() {
+
+      paymentList.innerHTML = '';
+
+      paymentMethods.forEach((m, idx) => {
+
+        const div = document.createElement('div');
+
+        div.className = `flex items-center gap-3 p-3 rounded-xl border transition cursor-pointer ${selectedPayment === idx ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-red-300'}`;
+
+        div.innerHTML = `
+
+          <i class="fas ${m.icon} ${m.iconClass} text-xl w-8 text-center"></i>
+
+          <span class="text-gray-700 font-medium">${m.label}</span>
+
+          ${selectedPayment === idx ? '<span class="ml-auto text-red-600"><i class="fas fa-check-circle"></i></span>' : ''}
+
+        `;
+
+        div.addEventListener('click', () => {
+
+          selectedPayment = idx;
+
+          renderPayments();
+
+          updateCheckoutButton();
+
+        });
+
+        paymentList.appendChild(div);
+
+      });
+
+    }
+
+    renderPayments();
+
+
+
+    function updateCheckoutButton() {
+
+      if (selectedPayment !== null) {
+
+        const name = paymentMethods[selectedPayment].name;
+
+        checkoutBtn.disabled = false;
+
+        checkoutBtn.innerHTML = `<i class="fas fa-shopping-bag mr-2"></i> CONTINUE WITH ${name.toUpperCase()}`;
+
+        checkoutBtn.className = 'w-full mt-4 btn-red py-3.5 rounded-xl font-medium btn-press';
+
+      } else {
+
+        checkoutBtn.disabled = true;
+
+        checkoutBtn.innerHTML = `<i class="fas fa-lock mr-2"></i> SELECT A PAYMENT METHOD`;
+
+        checkoutBtn.className = 'w-full mt-4 bg-gray-300 text-gray-500 py-3.5 rounded-xl font-medium cursor-not-allowed';
+
+      }
+
+    }
+
+    updateCheckoutButton();
+
+    function openCheckout(product) {
+
+      checkoutProduct.textContent = product.title;
+
+      checkoutPrice.textContent = `$${product.price.toFixed(2)}`;
+
+      selectedPayment = null;
+
+      renderPayments();
+
+      updateCheckoutButton();
+
+      checkoutModal.classList.remove('hidden');
+
+      checkoutModal.classList.add('flex');
+
+    }
+
+    document.addEventListener('click', (e) => {
+
+      const buyBtn = e.target.closest('.buy-btn');
+
+      if (buyBtn) {
+
+        const id = parseInt(buyBtn.dataset.id);
+
+        const product = products.find(p => p.id === id);
+
+        if (product) {
+
+          openCheckout(product);
+
+        }
+
+      }
+
+    });
+
+
+
+    closeCheckout.addEventListener('click', () => {
+
+      checkoutModal.classList.add('hidden');
+
+      checkoutModal.classList.remove('flex');
+
+    });
+
+    checkoutModal.addEventListener('click', (e) => {
+
+      if (e.target === checkoutModal) {
+
+        checkoutModal.classList.add('hidden');
+
+        checkoutModal.classList.remove('flex');
+
+      }
+
+    });
+
+
+
+    checkoutBtn.addEventListener('click', function() {
+
+      if (this.disabled) return;
+
+      
+
+      const product = checkoutProduct.textContent;
+
+      const price = checkoutPrice.textContent;
+
+      const payment = paymentMethods[selectedPayment].name;
+
+      const orderId = generateOrderId();
+
+      
+
+      const message = `Hello HOTFLIX 👋%0A%0AI want to purchase:%0AProduct: ${product}%0APrice: ${price}%0APayment Method: ${payment}%0AOrder ID: ${orderId}`;
+
+      
+
+      const telegramLink = `${TELEGRAM_URL}?text=${message}`;
+
+    
+      checkoutModal.classList.add('hidden');
+
+      checkoutModal.classList.remove('flex');
+
+      window.open(telegramLink, '_blank');
+      
+
+      console.log(`✅ Pedido gerado: ${orderId}`);
+
+    });
+
+    document.addEventListener('keydown', (e) => {
+
+      if (e.key === 'Escape') {
+
+        closePreviewModal();
+
+        checkoutModal.classList.add('hidden');
+
+        checkoutModal.classList.remove('flex');
+
+      }
+
+    });
+
+
+  })();
+
+</script>
+
+</body>
+</html>
